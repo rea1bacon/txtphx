@@ -1,15 +1,3 @@
-/*
- File: main.rs
- Created Date: 29 Jul 2023
- Author: realbacon
- -----
- Last Modified: 30/07/2023 12:15:32
- Modified By: realbacon
- -----
- License  : MIT
- -----
-*/
-
 use std::fs::File;
 use std::path::Path;
 use std::thread;
