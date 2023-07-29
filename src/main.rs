@@ -16,7 +16,7 @@ fn main() {
     let args = std::env::args().collect::<Vec<String>>();
     let file_name = args.get(1).unwrap_or_else(|| {
         println!("File name required");
-        exit(0)
+        exit(1)
         //hello
     });
     let path = Path::new(file_name); //world
@@ -24,7 +24,7 @@ fn main() {
 
     let file = File::open(path).unwrap_or_else(|_| {
         println!("File does not exist");
-        exit(0) // long comment
+        exit(1) // long comment
     });
     let reader = BufReader::new(file);
     let mut lines = reader
