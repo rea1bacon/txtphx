@@ -4,7 +4,7 @@ use std::thread;
 use std::time::Duration;
 extern crate term_size;
 use crossterm::terminal::{Clear, ClearType};
-use std::io::{self, Write};
+use std::io;
 use std::io::{BufRead, BufReader};
 use std::process::exit;
 use syntect::easy::HighlightLines;
@@ -16,14 +16,14 @@ fn main() {
     let args = std::env::args().collect::<Vec<String>>();
     let file_name = args.get(1).unwrap_or_else(|| {
         println!("File name required");
-        exit(0)
+        exit(1)
         //hello
     });
     let path = Path::new(file_name); //world
-    let (col, rows) = term_size::dimensions().unwrap();
+    let (_, rows) = term_size::dimensions().unwrap();
     let file = File::open(path).unwrap_or_else(|_| {
         println!("File does not exist");
-        exit(0) // long comment
+        exit(1) // long comment
     });
     let reader = BufReader::new(file);
     let mut lines = reader
@@ -107,7 +107,6 @@ fn find_comments(lines: &Vec<String>, ext: &str) -> Vec<(isize, isize, isize)> {
 fn apply_phx(lines: Vec<String>, cmt: &Vec<(isize, isize, isize)>) -> (Vec<String>, bool) {
     let mut lines = lines;
     let mut has_changed = false;
-    let (col, rows) = term_size::dimensions().unwrap();
     for i in (0..lines.len() - 1).rev() {
         for j in 0..lines[i].len() {
             if not_a_comment(cmt, (i as isize, j as isize))
