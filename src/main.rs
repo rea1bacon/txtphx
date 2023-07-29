@@ -3,7 +3,7 @@
  Created Date: 29 Jul 2023
  Author: realbacon
  -----
- Last Modified: 30/07/2023 12:02:36
+ Last Modified: 30/07/2023 12:15:32
  Modified By: realbacon
  -----
  License  : MIT
@@ -12,19 +12,18 @@
 
 use std::fs::File;
 use std::path::Path;
-use std::str::Chars;
 use std::thread;
 use std::time::Duration;
 extern crate term_size;
 use crossterm::terminal::{Clear, ClearType};
 use std::io::{self, Write};
 use std::io::{BufRead, BufReader};
-use std::{env, process::exit};
+use std::process::exit;
 use syntect::easy::HighlightLines;
 
-use syntect::highlighting::{Color, ThemeSet};
+use syntect::highlighting::ThemeSet;
 use syntect::parsing::SyntaxSet;
-use syntect::util::{as_24_bit_terminal_escaped, LinesWithEndings};
+use syntect::util::as_24_bit_terminal_escaped;
 fn main() {
     let args = std::env::args().collect::<Vec<String>>();
     let file_name = args.get(1).unwrap_or_else(|| {
@@ -33,7 +32,7 @@ fn main() {
         //hello
     });
     let path = Path::new(file_name); //world
-    let (col, rows) = term_size::dimensions().unwrap();
+    let (_, rows) = term_size::dimensions().unwrap();
 
     let file = File::open(path).unwrap_or_else(|_| {
         println!("File does not exist");
@@ -65,7 +64,6 @@ fn main() {
         lines = lines.iter_mut().map(|s| s.trim_end().to_string()).collect();
         if !hs {
             exit(0);
-            println!();
         }
 
         thread::sleep(Duration::from_millis(200));
@@ -123,7 +121,6 @@ fn find_comments(lines: &Vec<String>, ext: &str) -> Vec<(isize, isize, isize)> {
 fn apply_phx(lines: Vec<String>, cmt: &Vec<(isize, isize, isize)>) -> (Vec<String>, bool) {
     let mut lines = lines;
     let mut has_changed = false;
-    let (col, rows) = term_size::dimensions().unwrap();
     for i in (0..lines.len() - 1).rev() {
         for j in 0..lines[i].len() {
             if not_a_comment(cmt, (i as isize, j as isize))
