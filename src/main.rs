@@ -16,15 +16,14 @@ fn main() {
     let args = std::env::args().collect::<Vec<String>>();
     let file_name = args.get(1).unwrap_or_else(|| {
         println!("File name required");
-        exit(1)
+        exit(0)
         //hello
     });
     let path = Path::new(file_name); //world
-    let (_, rows) = term_size::dimensions().unwrap();
-
+    let (col, rows) = term_size::dimensions().unwrap();
     let file = File::open(path).unwrap_or_else(|_| {
         println!("File does not exist");
-        exit(1) // long comment
+        exit(0) // long comment
     });
     let reader = BufReader::new(file);
     let mut lines = reader
@@ -46,15 +45,15 @@ fn main() {
     loop {
         clear_term();
         print_with_syntax(&lines, &mut h, &syntax_set);
-        //println!("{:?}", lines);
+        //println!("{}", lines.clone().join("\n"));
         let (nls, hs) = apply_phx(lines, &cmt);
         lines = nls;
         lines = lines.iter_mut().map(|s| s.trim_end().to_string()).collect();
         if !hs {
-            exit(0);
+            exit(1);
         }
 
-        thread::sleep(Duration::from_millis(200));
+        thread::sleep(Duration::from_millis(170));
     }
 }
 
@@ -75,8 +74,7 @@ fn print_with_syntax(lines: &Vec<String>, h: &mut HighlightLines<'_>, syntax_set
         let escaped = as_24_bit_terminal_escaped(&ranges[..], false);
         res.push_str(&escaped[..]);
     }
-    let mut buffer = std::io::BufWriter::new(std::io::stdout());
-    buffer.write(res.as_bytes()).unwrap();
+    print!("{}", res);
 }
 
 fn find_comments(lines: &Vec<String>, ext: &str) -> Vec<(isize, isize, isize)> {
@@ -109,6 +107,7 @@ fn find_comments(lines: &Vec<String>, ext: &str) -> Vec<(isize, isize, isize)> {
 fn apply_phx(lines: Vec<String>, cmt: &Vec<(isize, isize, isize)>) -> (Vec<String>, bool) {
     let mut lines = lines;
     let mut has_changed = false;
+    let (col, rows) = term_size::dimensions().unwrap();
     for i in (0..lines.len() - 1).rev() {
         for j in 0..lines[i].len() {
             if not_a_comment(cmt, (i as isize, j as isize))
